@@ -19,8 +19,20 @@ app.use("", (req, res, next) => {
   next();
 });
 
+app.use((req, res, next) => {
+  req.requestTime = new Date().toISOString();
+  next();
+});
+
 app.use("/api/v1/tours", tourRouter);
 app.use("/api/v1/users", userRouter);
+
+app.all("*", (req, res, next) => {
+  res.status(404).json({
+    status: "fail",
+    message: `Cant find ${req.originalUrl}`,
+  });
+});
 
 const DB = process.env.DATABASE.replace(
   "<PASSWORD>",

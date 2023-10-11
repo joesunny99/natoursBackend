@@ -5,7 +5,6 @@ const Tour = require("../models/tourModels");
 //   fs.readFileSync(`${__dirname}/../dev-data/data/tours-simple.json`)
 // );
 
-
 exports.aliasTopTours = (req, res, next) => {
   req.query.limit = "5";
   req.query.sort = "-ratingsAverage,price";
@@ -15,7 +14,6 @@ exports.aliasTopTours = (req, res, next) => {
 
 exports.getAllTours = async (req, res) => {
   try {
-
     let queryObj = { ...req.query };
     let excludedFields = ["sort", "limit", "page", "fields"];
 
@@ -153,6 +151,56 @@ exports.deleteTour = async (req, res) => {
         tour,
       },
     });
+  } catch (err) {
+    res.status(400).json({
+      status: "fail",
+      message: err,
+    });
+  }
+};
+
+exports.getTourStats = async (req, res) => {
+  console.log("coming here");
+  try {
+    // const stats = await Tour.aggregate([
+    //   {
+    //     $match: { ratingsAverage: { $gte: 4.5 } },
+    //   },
+    // ]);
+
+    const stats = await Tour.aggregate([
+      {
+        $match: { ratingsAverage: { $gte: 4.5 } },
+      },
+      {
+        $group: {
+          _id: "$difficulty",
+          numTours: { $sum: 1 },
+          numRatings: { $sum: "$ratingsQuantity" },
+          avgRating: { $avg: "$ratingsAverage" },
+          avgPrice: { $avg: "$price" },
+          minPrice: { $min: "$price" },
+          maxPrice: { $max: "$price" },
+        },
+      },
+      {
+        $sort: { numTours: -1 },
+      },
+    ]);
+
+    res.status(200).json({
+      status: "success",
+      data: {
+        stats,
+      },
+    });
+
+    // res.status(200).json({
+    //   status: "success",
+    //   data: {
+    //     stats: stats,
+    //   },
+    // });
   } catch (err) {
     res.status(400).json({
       status: "fail",

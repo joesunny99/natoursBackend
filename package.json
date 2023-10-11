@@ -5,7 +5,8 @@
   "main": "main.js",
   "scripts": {
     "start": "nodemon main.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "debug": "ndb main.js"
   },
   "keywords": [],
   "author": "",
