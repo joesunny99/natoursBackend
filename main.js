@@ -3,12 +3,21 @@ const dotenv = require("dotenv");
 const app = express();
 const morgan = require("morgan");
 const mongoose = require("mongoose");
+const globalErrorHandler = require("./controllers/errorController");
 app.use(express.json());
+
+process.on("uncaughtException", (err) => {
+  console.log("UNCAUGHT EXCEPTION! 💥 Shutting down...");
+  console.log(err.name, err.message);
+  process.exit(1);
+});
 
 const tourRouter = require("./routes/tourRoutes");
 const userRouter = require("./routes/userRoutes");
 
 dotenv.config({ path: "./config.env" });
+
+app.use(morgan("dev"));
 
 if (process.env.NODE_ENV === "development") {
   app.use(morgan("dev"));
@@ -28,11 +37,10 @@ app.use("/api/v1/tours", tourRouter);
 app.use("/api/v1/users", userRouter);
 
 app.all("*", (req, res, next) => {
-  res.status(404).json({
-    status: "fail",
-    message: `Cant find ${req.originalUrl}`,
-  });
+  next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));
 });
+
+app.use(globalErrorHandler);
 
 const DB = process.env.DATABASE.replace(
   "<PASSWORD>",
@@ -52,4 +60,12 @@ mongoose
 const port = process.env.PORT || 8082;
 app.listen(port, () => {
   console.log(`App running on port ${port}...`);
+});
+
+process.on("unhandledRejection", (err) => {
+  console.log("UNHANDLED REJECTION! 💥 Shutting down...");
+  console.log(err.name, err.message);
+  server.close(() => {
+    process.exit(1);
+  });
 });
