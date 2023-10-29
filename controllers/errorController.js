@@ -23,12 +23,13 @@ const handleValidationErrorDB = (err) => {
 };
 
 const sendErrorDev = (err, res) => {
-  res.status(err.statusCode).json({
+  return res.status(err.statusCode).json({
     status: err.status,
     error: err,
     message: err.message,
     stack: err.stack,
   });
+  console.log("is it here");
 };
 
 const sendErrorProd = (err, res) => {
@@ -61,9 +62,11 @@ module.exports = (err, req, res, next) => {
   //   console.log(err.name);
 
   if (process.env.NODE_ENV === "development") {
-    // console.log("checking here");
+    console.log("checking here again");
     sendErrorDev(err, res);
   } else if (process.env.NODE_ENV === "production") {
+    console.log("checking here too");
+
     let error = { ...err };
 
     console.log("checking also here", err.name, error.name, err, error);
