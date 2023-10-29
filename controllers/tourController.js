@@ -83,6 +83,8 @@ exports.getTour = catchAsync(async (req, res, next) => {
       tour,
     },
   });
+
+  console.log("checking in get tour after");
 });
 
 exports.createTour = catchAsync(async (req, res, next) => {
