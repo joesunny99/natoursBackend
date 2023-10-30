@@ -15,8 +15,8 @@ exports.aliasTopTours = (req, res, next) => {
 };
 
 exports.getAllTours = catchAsync(async (req, res) => {
-  let queryObj = { ...req.query };
-  let excludedFields = ["sort", "limit", "page", "fields"];
+  const queryObj = { ...req.query };
+  const excludedFields = ["sort", "limit", "page", "fields"];
 
   excludedFields.forEach((field) => delete queryObj[field]);
 

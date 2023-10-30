@@ -2,6 +2,7 @@ const User = require("../models/userModel");
 const AppError = require("../utils/appError");
 const catchAsync = require("../utils/catchAsync");
 const jwt = require("jsonwebtoken");
+const { promisify } = require("util");
 
 const getToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
@@ -16,6 +17,7 @@ exports.signup = catchAsync(async (req, res, next) => {
     email: req.body.email,
     password: req.body.password,
     passwordConfirm: req.body.passwordConfirm,
+    role: req.body.role,
   });
 
   const token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET, {
@@ -59,6 +61,43 @@ exports.login = catchAsync(async (req, res, next) => {
     status: "success",
     token,
   });
-
-  //2-check if password matches with password
 });
+
+exports.protect = catchAsync(async (req, res, next) => {
+  //1-check if token is there
+
+  if (
+    !req.headers.authorization ||
+    !req.headers.authorization.startsWith("Bearer")
+  ) {
+    return next(new AppError("Token Missing. Please relog"), 404);
+  }
+
+  //2-decode the token
+
+  token = req.headers.authorization.split(" ")[1];
+  if (!token) return next(new AppError("Token missing. Please relog", 404));
+
+  const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
+
+  console.log(decoded, "check");
+
+  const checkUser = await User.findOne({ _id: decoded.id });
+  console.log(checkUser);
+  if (!checkUser) {
+    return next(new AppError("The logged in user does not exist anymore", 400));
+  }
+
+  req.user = checkUser;
+
+  next();
+});
+
+exports.restrictTo = (...roles) => {
+  return (req, res, next) => {
+    if (!roles.includes(req.user.role)) {
+      return next(new AppError("You do not have permission", 403));
+    }
+    next();
+  };
+};
