@@ -3,6 +3,8 @@ const dotenv = require("dotenv");
 const app = express();
 const morgan = require("morgan");
 const mongoose = require("mongoose");
+const AppError = require("./utils/appError");
+
 const globalErrorHandler = require("./controllers/errorController");
 app.use(express.json());
 
@@ -18,7 +20,6 @@ const userRouter = require("./routes/userRoutes");
 dotenv.config({ path: "./config.env" });
 
 // app.use(morgan("dev"));
-
 
 if (process.env.NODE_ENV === "development") {
   app.use(morgan("dev"));

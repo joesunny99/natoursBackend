@@ -64,14 +64,14 @@ module.exports = (err, req, res, next) => {
   //   console.log(err.name);
 
   if (process.env.NODE_ENV === "development") {
-    console.log("checking here again");
+    // console.log("checking here again");
     sendErrorDev(err, res);
   } else if (process.env.NODE_ENV === "production") {
     console.log("checking here too");
 
     let error = { ...err };
 
-    console.log("checking also here", err.name, error.name, err, error);
+    // console.log("checking also here", err.name, error.name, err, error);
 
     if (err.name === "CastError") error = handleCastErrorDB(error);
     if (error.code === 11000) error = handleDuplicateFieldsDB(error);
