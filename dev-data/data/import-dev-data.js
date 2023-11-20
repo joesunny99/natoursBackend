@@ -19,9 +19,7 @@ mongoose
   .then(() => console.log("DB connection successful!"));
 
 // READ JSON FILE
-let tours = JSON.parse(
-  fs.readFileSync(`${__dirname}/tours-simple.json`, "utf-8")
-);
+let tours = JSON.parse(fs.readFileSync(`${__dirname}/tours.json`, "utf-8"));
 
 // IMPORT DATA INTO DB
 const importData = async () => {
@@ -30,7 +28,7 @@ const importData = async () => {
       const { id, ...rest } = tour;
       return rest;
     });
-    console.log(tours);
+    console.log(tours, "tours");
     await Tour.create(tours);
     console.log("Data successfully loaded!");
   } catch (err) {
